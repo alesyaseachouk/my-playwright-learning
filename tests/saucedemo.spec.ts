@@ -13,10 +13,10 @@ test.describe('SauceDemo Test Suite', () => {
     await page.click('#login-button');
 
     // Verify redirect to inventory page
-    await expect(page).toHaveURL(/inventory/);
+    await expect(page, 'User is not redirected to the inventory page').toHaveURL(/inventory/);
 
     // Additional stability assertion
-    await expect(page.locator('.title')).toHaveText('Products');
+    await expect(page.locator('.title'), 'Products page title is not displayed').toHaveText('Products');
   });
 
   test('Login (error path)', async ({ page }) => {
@@ -26,7 +26,7 @@ test.describe('SauceDemo Test Suite', () => {
     await page.click('#login-button');
 
     // Verify error message is visible
-    await expect(page.locator('[data-test="error"]')).toBeVisible();
+    await expect(page.locator('[data-test="error"]'), 'Error message is not shown').toBeVisible();
   });
 
   // ---------------------------------------------------------------------------
@@ -41,13 +41,13 @@ test.describe('SauceDemo Test Suite', () => {
     await page.click('#login-button');
 
     // Verify user stays on login page
-    await expect(page).toHaveURL('https://www.saucedemo.com/');
+    await expect(page, 'The URL is not opened').toHaveURL('https://www.saucedemo.com/');
 
     // Verify validation error is displayed
-    await expect(page.locator('[data-test="error"]')).toBeVisible();
+    await expect(page.locator('[data-test="error"]'), 'Validation error is not shown').toBeVisible();
 
     // ✅ Correct full message (original suite had 'Username is required' — missing prefix)
-    await expect(page.locator('[data-test="error"]')).toHaveText(
+    await expect(page.locator('[data-test="error"]'), 'Full message is not shown').toHaveText(
       'Epic sadface: Username is required'
     );
   });
@@ -57,9 +57,9 @@ test.describe('SauceDemo Test Suite', () => {
     await page.fill('#user-name', 'standard_user');
     await page.click('#login-button');
 
-    await expect(page).toHaveURL('https://www.saucedemo.com/');
-    await expect(page.locator('[data-test="error"]')).toBeVisible();
-    await expect(page.locator('[data-test="error"]')).toHaveText(
+    await expect(page, 'The page is not loaded').toHaveURL('https://www.saucedemo.com/');
+    await expect(page.locator('[data-test="error"]'), 'Error message is not shown').toBeVisible();
+    await expect(page.locator('[data-test="error"]'), 'Error message is not shown').toHaveText(
       'Epic sadface: Password is required'
     );
   });
@@ -80,7 +80,7 @@ test.describe('SauceDemo Test Suite', () => {
 
       await expect(
         page.locator('.shopping_cart_badge'),
-        'Cart badge should show 1 after adding a product'
+        'Cart badge is not showing 1 after adding a product'
       ).toHaveText('1');
     });
 
@@ -96,7 +96,7 @@ test.describe('SauceDemo Test Suite', () => {
       // Verify cart badge disappears completely
       await expect(
         page.locator('.shopping_cart_badge'),
-        'Cart badge should disappear after removing the product'
+        'Cart badge is still shown after removing the product'
       ).toHaveCount(0);
     });
 
@@ -117,8 +117,8 @@ test.describe('SauceDemo Test Suite', () => {
 
       await addButton.click();
       // Force subsequent clicks — button is already replaced, should be no-ops
-      await addButton.click({ force: true }).catch(() => {/* expected – button replaced */});
-      await addButton.click({ force: true }).catch(() => {/* expected – button replaced */});
+      await addButton.click({ force: true }).catch(() => {/* expected – button replaced */ });
+      await addButton.click({ force: true }).catch(() => {/* expected – button replaced */ });
 
       await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
 
@@ -220,5 +220,45 @@ test.describe('SauceDemo Test Suite', () => {
       await expect(page.locator('.inventory_item_name').first()).toHaveText('Sauce Labs Backpack');
     });
 
+    test('Hamburger menu displays all expected menu items', async ({ page }) => {
+      // Open the hamburger menu
+      await page.click('#react-burger-menu-btn');
+
+      // Verify the menu is displayed
+      await expect(
+        page.locator('.bm-menu-wrap'),
+        'Hamburger menu should be visible after clicking the menu button'
+      ).toBeVisible();
+
+      // Verify all menu items
+      await expect(
+        page.locator('#inventory_sidebar_link'),
+        'All Items menu item should be displayed'
+      ).toHaveText('All Items');
+
+      await expect(
+        page.locator('#about_sidebar_link'),
+        'About menu item should be displayed'
+      ).toHaveText('About');
+
+      await expect(
+        page.locator('#logout_sidebar_link'),
+        'Logout menu item should be displayed'
+      ).toHaveText('Logout');
+
+      await expect(
+        page.locator('#reset_sidebar_link'),
+        'Reset App State menu item should be displayed'
+      ).toHaveText('Reset App State');
+
+      // Close the menu
+      await page.click('#react-burger-cross-btn');
+
+      await expect(
+        page.locator('.bm-menu-wrap'),
+        'Hamburger menu should be hidden after clicking the close button'
+      ).not.toBeVisible();
+    });
+
   });
-});
+}); 
