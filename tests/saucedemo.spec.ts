@@ -221,41 +221,43 @@ test.describe('SauceDemo Test Suite', () => {
     });
 
     test('Hamburger menu displays all expected menu items', async ({ page }) => {
-
-      await expect(
-        page,
-        'User is not redirected to the inventory page'
-      ).toHaveURL(/inventory/);
-
       // Open the hamburger menu
       await page.click('#react-burger-menu-btn');
 
-      // Verify menu is visible
+      // Verify the menu is displayed
       await expect(
         page.locator('.bm-menu-wrap'),
-        'Hamburger menu is not displayed'
+        'Hamburger menu should be visible after clicking the menu button'
       ).toBeVisible();
 
       // Verify all menu items
       await expect(
         page.locator('#inventory_sidebar_link'),
-        'All Items menu item is not displayed'
+        'All Items menu item should be displayed'
       ).toHaveText('All Items');
 
       await expect(
         page.locator('#about_sidebar_link'),
-        'About menu item is not displayed'
+        'About menu item should be displayed'
       ).toHaveText('About');
 
       await expect(
         page.locator('#logout_sidebar_link'),
-        'Logout menu item is not displayed'
+        'Logout menu item should be displayed'
       ).toHaveText('Logout');
 
       await expect(
         page.locator('#reset_sidebar_link'),
-        'Reset App State menu item is not displayed'
+        'Reset App State menu item should be displayed'
       ).toHaveText('Reset App State');
+
+      // Close the menu
+      await page.click('#react-burger-cross-btn');
+
+      await expect(
+        page.locator('.bm-menu-wrap'),
+        'Hamburger menu should be hidden after clicking the close button'
+      ).not.toBeVisible();
     });
 
   });
