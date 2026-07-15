@@ -116,18 +116,22 @@ test.describe('SauceDemo Test Suite', () => {
       const addButton = page.locator('[data-test="add-to-cart-sauce-labs-backpack"]');
 
       await addButton.click();
-      // Force subsequent clicks — button is already replaced, should be no-ops
-      await addButton.click({ force: true }).catch(() => {/* expected – button replaced */ });
-      await addButton.click({ force: true }).catch(() => {/* expected – button replaced */ });
 
-      await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
-
-      // Only one "Remove" button should exist
       await expect(
-        page.locator('[data-test="remove-sauce-labs-backpack"]')
-      ).toHaveCount(1);
-    });
+        page.locator('.shopping_cart_badge'),
+        'Cart badge should show 1 item after adding the product once'
+      ).toHaveText('1');
 
+      await expect(
+        page.locator('[data-test="remove-sauce-labs-backpack"]'),
+        'Remove button should replace Add to cart button after the product is added'
+      ).toHaveCount(1);
+
+      await expect(
+        addButton,
+        'Add to cart button should no longer be visible after the product is added'
+      ).toHaveCount(0);
+    });
     test('Multiple different items can be added independently', async ({ page }) => {
       await page.click('[data-test="add-to-cart-sauce-labs-backpack"]');
       await page.click('[data-test="add-to-cart-sauce-labs-bike-light"]');
